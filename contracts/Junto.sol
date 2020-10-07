@@ -190,8 +190,8 @@ contract Junto {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
 
+        Participant storage participant = participantMap[msg.sender];
         participant.signedContract = false;
     }
 
@@ -199,14 +199,22 @@ contract Junto {
     // (payments have been made, both parties have signed)
     function doesContractMeetExecutionCriteria() private view 
         returns (bool) {
-        require(contractState == State.Prepare, "Contract has already executed.");
-        // Check payments
-        require(borrower.collateral.deposited, "Borrower has not desposited collateral");
-        require(lender.collateral.deposited, "Lender has not desposited collateral");
-        require(payment.deposited, "Payment has not been deposited");
-        // Check signatures
-        require(lender.signedContract, "Lender has not signed contract.");
-        require(borrower.signedContract, "Borrower has not signed contract");
+        require(contractState == State.Prepare,
+		"Contract has already executed.");
+        
+	// Check payments
+        require(borrower.collateral.deposited,
+		"Borrower has not desposited collateral");
+        require(lender.collateral.deposited,
+		"Lender has not desposited collateral");
+        require(payment.deposited,
+		"Payment has not been deposited");
+        
+	// Check signatures
+        require(lender.signedContract, 
+		"Lender has not signed contract.");
+        require(borrower.signedContract,
+		"Borrower has not signed contract");
 
         return true;
     }
@@ -235,6 +243,8 @@ contract Junto {
                 msg.sender == borrower.addr);
     
         contractState = State.Nuked;
+
+	// Send collaterals to forwarding address
         borrower.collateral.deposited = false;
         lender.collateral.deposited = false;
         uint totalCollateral = borrower.collateral.value + lender.collateral.value;
@@ -295,7 +305,8 @@ contract Junto {
              borrower.collateral.value > 0) ||
             (payment.deposited &&
              payment.value > 0);
-        require(!valueInContract);
+        require(!valueInContract,
+		"Not all value withdrawn from contract");
         // Destroy contract.
         selfdestruct(forwardingAddress);
     }
