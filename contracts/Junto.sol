@@ -114,7 +114,7 @@ contract Junto {
                 msg.sender == borrower.addr);
         Participant storage participant = participantMap[msg.sender];
 	require(participant.collateral.value > 0,
-		"Collateral value is zero")
+		"Collateral value is zero");
         require(!participant.collateral.deposited, 
                 "Collateral already deposited");
         require(msg.value == participant.collateral.value, 
