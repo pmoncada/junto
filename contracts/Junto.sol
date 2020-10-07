@@ -75,11 +75,11 @@ contract Junto {
     // (addresses of parties involved,
     //  account values)
     function specifyContract(address payable lenderAddr, 
-                address payable borrowerAddr,
-                address payable forwardingAddr,
-                uint paymentAmount, 
-                uint lenderCollateralAmount, 
-                uint borrowerCollateralAmount) public {
+	                     address payable borrowerAddr,
+                             address payable forwardingAddr,
+                             uint paymentAmount, 
+                             uint lenderCollateralAmount, 
+                             uint borrowerCollateralAmount) public {
         
         require(contractState == State.Blank);
         contractState = State.Prepare;
@@ -113,6 +113,8 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         Participant storage participant = participantMap[msg.sender];
+	require(participant.collateral.value > 0,
+		"Collateral value is zero")
         require(!participant.collateral.deposited, 
                 "Collateral already deposited");
         require(msg.value == participant.collateral.value, 
@@ -145,8 +147,12 @@ contract Junto {
         require(contractState == State.Prepare);
         require(msg.value < 1e60);
         require(msg.sender == borrower.addr);
-        require(msg.value == payment.value);
-        require(!payment.deposited);
+        require(payment.value > 0,
+		"Payment value is zero");
+        require(!payment.deposited,
+		"Payment already deposited");
+        require(msg.value == payment.value,
+	        "Amount added not equal to payment value");
 
         payment.deposited = true;
     }
@@ -156,8 +162,10 @@ contract Junto {
     function withdrawPayment() public {
         require(contractState == State.Prepare);
         require(msg.sender == borrower.addr);
-        require(payment.deposited);
-        require(payment.value > 0);
+        require(payment.deposited,
+		"Payment has not been deposited yet");
+        require(payment.value > 0,
+		"Payment value is zero");
     
         payment.deposited = false;
         borrower.addr.transfer(payment.value);
@@ -170,9 +178,8 @@ contract Junto {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
-        require(participant.collateral.deposited);
-
+        
+	Participant storage participant = participantMap[msg.sender];
         participant.signedContract = true;
     }
 
