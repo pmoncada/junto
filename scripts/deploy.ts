@@ -1,7 +1,7 @@
 import { ethers } from "@nomiclabs/buidler";
 
 async function main() {
-  const factory = await ethers.getContractFactory("Counter");
+  const factory = await ethers.getContractFactory("Junto");
 
   // If we had constructor arguments, they would be passed into deploy()
   let contract = await factory.deploy();
