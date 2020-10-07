@@ -79,7 +79,7 @@ contract Junto {
                              address payable forwardingAddr,
                              uint paymentAmount, 
                              uint lenderCollateralAmount, 
-                             uint borrowerCollateralAmount) public {
+                             uint borrowerCollateralAmount) external {
         
         require(contractState == State.Blank);
         contractState = State.Prepare;
@@ -107,7 +107,7 @@ contract Junto {
 
     // Deposit collateral into the contract.
     // Can only be done in the prepare stage.
-    function depositCollateral() public payable {
+    function depositCollateral() external payable {
         require(contractState == State.Prepare);
         require(msg.value < 1e60);
         require(msg.sender == lender.addr ||
@@ -126,7 +126,7 @@ contract Junto {
     // Withdraw collateral from the contract.
     // Can only be done before the contract has
     // been enforced, or after it has been resolved.
-    function withdrawCollateral() public {
+    function withdrawCollateral() external {
         require(contractState == State.Prepare ||
                 contractState == State.Resolved);
         require(msg.sender == lender.addr ||
@@ -143,7 +143,7 @@ contract Junto {
 
     // Deposit payment into the contract for borrower.
     // Can only be done in the prepare stage.
-    function depositPayment() public payable {
+    function depositPayment() external payable {
         require(contractState == State.Prepare);
         require(msg.value < 1e60);
         require(msg.sender == borrower.addr);
@@ -159,7 +159,7 @@ contract Junto {
 
     // Withdraw payment from the contract for borrower.
     // Can only be done in the prepare stage.
-    function withdrawPayment() public {
+    function withdrawPayment() external {
         require(contractState == State.Prepare);
         require(msg.sender == borrower.addr);
         require(payment.deposited,
@@ -174,7 +174,7 @@ contract Junto {
     // Allows party to sign the contract.
     // Both lender and borrower have to sign the contract
     // before it can be enforced.
-    function signContract() public {
+    function signContract() external {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -186,7 +186,7 @@ contract Junto {
     // Remove signature from contract.
     // This can only be done before the contract
     // is enforced.
-    function removeSignatureFromContract() public {
+    function removeSignatureFromContract() external {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -220,7 +220,7 @@ contract Junto {
     }
 
     // Set contract to be enforced.
-    function lockContract() public payable {
+    function lockContract() external payable {
         require(contractState == State.Prepare);
         require(doesContractMeetExecutionCriteria());
         require(msg.sender == lender.addr ||
@@ -237,7 +237,7 @@ contract Junto {
     // Nuke contract can be done by either party.
     // Once this is done, parties are no longer
     // able to retrieve thier collateral.
-    function nukeContract() public payable {
+    function nukeContract() external {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -255,7 +255,7 @@ contract Junto {
 
     // Either lender or borrower can mark the
     // contract as ready to be resolved.
-    function userReadyToResolve() public {
+    function userReadyToResolve() external {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -265,7 +265,7 @@ contract Junto {
     }
 
     // Remove ready to resolve state for party.
-    function userUndoReadyToResolve() public {
+    function userUndoReadyToResolve() external {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -277,7 +277,7 @@ contract Junto {
     // When both members are ready to resolve the
     // contract, it can be marked as resolved,
     // allowing parties to retrieve thier collateral.
-    function resolveContract() public {
+    function resolveContract() external {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
@@ -289,7 +289,7 @@ contract Junto {
 
     // Checks whether the contract is okay to
     // be destroyed, and destroy it.
-    function destroyContract() public {
+    function destroyContract() external {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         // Don't allow the contract to be destroyed
