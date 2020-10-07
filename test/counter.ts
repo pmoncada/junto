@@ -1,21 +1,21 @@
 import { ethers } from "@nomiclabs/buidler";
 import chai from "chai";
 import { deployContract, solidity } from "ethereum-waffle";
-import CounterArtifact from "../artifacts/Counter.json";
-import { Counter } from "../typechain/Counter";
+import JuntoArtifact from "../artifacts/Junto.json";
+import { Junto } from "../typechain/Junto";
 
 chai.use(solidity);
 const { expect } = chai;
 
-describe("Counter", () => {
-  let counter: Counter;
+describe("Junto", () => {
+  let junto : Junto;
 
   beforeEach(async () => {
     // 1
     const signers = await ethers.getSigners();
 
     // 2
-    counter = (await deployContract(signers[0], CounterArtifact)) as Counter;
+    junto = (await deployContract(signers[0], JuntoArtifact)) as Junto;
     const initialCount = await counter.getCount();
 
     // 3
