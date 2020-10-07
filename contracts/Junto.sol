@@ -1,6 +1,6 @@
 // Specifies the version of Solidity, using semantic versioning.
 // Learn more: https://solidity.readthedocs.io/en/v0.5.10/layout-of-source-files.html#pragma
-pragma solidity ^0.5.10;
+pragma solidity ^0.6.8;
 
 // Defines a smart collateral contract where both parties put collateral up. If the contract is unsuccessful
 // then the money gets forwarded to an agreed upon address. If successful, everyone gets their collateral
