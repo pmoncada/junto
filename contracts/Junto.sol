@@ -2,6 +2,8 @@
 // Learn more: https://solidity.readthedocs.io/en/v0.5.10/layout-of-source-files.html#pragma
 pragma solidity ^0.6.8;
 
+pragma experimental ABIEncoderV2;
+
 // Defines a smart collateral contract where both parties put collateral up. If the contract is unsuccessful
 // then the money gets forwarded to an agreed upon address. If successful, everyone gets their collateral
 // back. The contract also includes a payment option from the borrower to the lender.
@@ -12,7 +14,7 @@ contract Junto {
     enum State { 
         // A blank Junto contract.
         Blank, 
-        // Contract is waiting forsignatures and deposits.
+        // Contract is waiting for signatures and deposits.
         Prepare, 
         // Contract is enforced until resolved or nuked.                    
         Locked,
@@ -21,6 +23,7 @@ contract Junto {
         // Both parties have resolved the contract.
         Resolved 
     }
+    
     State public contractState;
 
     // A payable account held by the contract
@@ -47,19 +50,19 @@ contract Junto {
     }
 
     // The participants in the contract.
-    Participant lender;
-    Participant borrower;
+    Participant public lender;
+    Participant public borrower;
     // Map from addresses to participants.
     mapping (address => Participant) participantMap;
 
     // Payment account for borrower
-    Account payment;
+    Account public payment;
 
     // Forwarding address for if the contract is nuked.
     // For the contract to be effective,
     // neither party should have control of this
     // forwarding address.
-    address payable forwardingAddress;
+    address payable public forwardingAddress;
 
     // Initialize a blank contract
     constructor() public {
