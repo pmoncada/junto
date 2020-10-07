@@ -5,47 +5,91 @@ pragma solidity ^0.6.8;
 // Defines a smart collateral contract where both parties put collateral up. If the contract is unsuccessful
 // then the money gets forwarded to an agreed upon address. If successful, everyone gets their collateral
 // back. The contract also includes a payment option from the borrower to the lender.
+
 contract Junto {
     
-    enum State { Prepare, Locked, Nuked, Resolved }
-    State public contractState = State.Prepare;
+    // The possible states of a Junto contract.
+    enum State { 
+        // A blank Junto contract.
+        Blank, 
+        // Contract is waiting forsignatures and deposits.
+        Prepare, 
+        // Contract is enforced until resolved or nuked.                    
+        Locked,
+        // Either party has nuked the contract. 
+        Nuked,
+        // Both parties have resolved the contract.
+        Resolved 
+    }
+    State public contractState;
 
+    // A payable account held by the contract
+    // (Either collateral or borrower payment)
     struct Account {
+        // The value of the account.
         uint value;
+        // Whether the value has been deposited.
         bool deposited;
     }
 
+    // A participant in the contract
+    // (either the lender or the borrower)
     struct Participant {
+        // Address of the participant.
         address payable addr;
+        // Collateral account for the party.
         Account collateral;
+        // Whether the party has signed the contract.
         bool signedContract;
+        // Whether the party is ready to resolve the 
+        // contract.
         bool readyToResolve;
     }
 
+    // The participants in the contract.
     Participant lender;
     Participant borrower;
+    // Map from addresses to participants.
     mapping (address => Participant) participantMap;
 
+    // Payment account for borrower
     Account payment;
+
+    // Forwarding address for if the contract is nuked.
+    // For the contract to be effective,
+    // neither party should have control of this
+    // forwarding address.
     address payable forwardingAddress;
 
-    constructor(address payable lenderAddr, 
-                address payable borrowerAddr,
-                address payable forwardingAddr,
-                uint paymentAmount, 
-                uint lenderCollateralAmount, 
-                uint borrowerCollateralAmount) public {
-        
-        contractState = State.Prepare;
-        lender.addr = lenderAddr;
-        borrower.addr = borrowerAddr;
-        forwardingAddress = forwardingAddr;
-        
+    // Initialize a blank contract
+    constructor() public {
+        contractState = State.Blank;
+
         lender.readyToResolve = false;
         lender.signedContract = false;
         borrower.readyToResolve = false;
         borrower.signedContract = false;
+    }
+
+    // Specify contract parameters
+    // (addresses of parties involved,
+    //  account values)
+    function specifyContract(address payable lenderAddr, 
+	                     address payable borrowerAddr,
+                             address payable forwardingAddr,
+                             uint paymentAmount, 
+                             uint lenderCollateralAmount, 
+                             uint borrowerCollateralAmount) public {
         
+        require(contractState == State.Blank);
+        contractState = State.Prepare;
+
+        // Set addresses
+        lender.addr = lenderAddr;
+        borrower.addr = borrowerAddr;
+        forwardingAddress = forwardingAddr;
+        
+        // Set contract values
         lender.collateral.value = lenderCollateralAmount;
         borrower.collateral.value = borrowerCollateralAmount;
         payment.value = paymentAmount;
@@ -60,80 +104,122 @@ contract Junto {
         participantMap[borrowerAddr] = borrower;
     }
 
+
+    // Deposit collateral into the contract.
+    // Can only be done in the prepare stage.
     function depositCollateral() public payable {
         require(contractState == State.Prepare);
         require(msg.value < 1e60);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         Participant storage participant = participantMap[msg.sender];
-        require(!participant.collateral.deposited, "Collateral already deposited");
-        require(msg.value == participant.collateral.value, "Amount added not equal to collateral value");
+	require(participant.collateral.value > 0,
+		"Collateral value is zero");
+        require(!participant.collateral.deposited, 
+                "Collateral already deposited");
+        require(msg.value == participant.collateral.value, 
+                "Amount added not equal to collateral value");
     
         participant.collateral.deposited = true;
     }
 
+    // Withdraw collateral from the contract.
+    // Can only be done before the contract has
+    // been enforced, or after it has been resolved.
     function withdrawCollateral() public {
         require(contractState == State.Prepare ||
                 contractState == State.Resolved);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         Participant storage participant = participantMap[msg.sender];
-        require(participant.collateral.deposited);
+        require(participant.collateral.deposited,
+                "Collateral has not been deposited yet");
+        require(participant.collateral.value > 0,
+                "Collateral value is zero");
 
         participant.collateral.deposited = false;
         participant.addr.transfer(participant.collateral.value); 
     }
 
+    // Deposit payment into the contract for borrower.
+    // Can only be done in the prepare stage.
     function depositPayment() public payable {
         require(contractState == State.Prepare);
         require(msg.value < 1e60);
         require(msg.sender == borrower.addr);
-        require(msg.value == payment.value);
-        require(!payment.deposited);
+        require(payment.value > 0,
+		"Payment value is zero");
+        require(!payment.deposited,
+		"Payment already deposited");
+        require(msg.value == payment.value,
+	        "Amount added not equal to payment value");
 
         payment.deposited = true;
     }
 
+    // Withdraw payment from the contract for borrower.
+    // Can only be done in the prepare stage.
     function withdrawPayment() public {
         require(contractState == State.Prepare);
         require(msg.sender == borrower.addr);
-        require(payment.deposited);
+        require(payment.deposited,
+		"Payment has not been deposited yet");
+        require(payment.value > 0,
+		"Payment value is zero");
     
         payment.deposited = false;
         borrower.addr.transfer(payment.value);
     }
 
+    // Allows party to sign the contract.
+    // Both lender and borrower have to sign the contract
+    // before it can be enforced.
     function signContract() public {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
-        require(participant.collateral.deposited);
-
+        
+	Participant storage participant = participantMap[msg.sender];
         participant.signedContract = true;
     }
 
+    // Remove signature from contract.
+    // This can only be done before the contract
+    // is enforced.
     function removeSignatureFromContract() public {
         require(contractState == State.Prepare);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
 
+        Participant storage participant = participantMap[msg.sender];
         participant.signedContract = false;
     }
 
+    // Check whether the contract is ready for enforcement
+    // (payments have been made, both parties have signed)
     function doesContractMeetExecutionCriteria() private view 
         returns (bool) {
-        require(contractState == State.Prepare, "Contract has already executed.");
-        require(borrower.collateral.deposited, "Borrower has not desposited collateral");
-        require(lender.collateral.deposited, "Lender has not desposited collateral");
-        require(payment.deposited, "Payment has not been deposited");
-        require(lender.signedContract, "Lender has not signed contract.");
-        require(borrower.signedContract, "Borrower has not signed contract");
+        require(contractState == State.Prepare,
+		"Contract has already executed.");
+        
+	// Check payments
+        require(borrower.collateral.deposited,
+		"Borrower has not desposited collateral");
+        require(lender.collateral.deposited,
+		"Lender has not desposited collateral");
+        require(payment.deposited,
+		"Payment has not been deposited");
+        
+	// Check signatures
+        require(lender.signedContract, 
+		"Lender has not signed contract.");
+        require(borrower.signedContract,
+		"Borrower has not signed contract");
 
         return true;
     }
 
+    // Set contract to be enforced.
     function lockContract() public payable {
         require(contractState == State.Prepare);
         require(doesContractMeetExecutionCriteria());
@@ -148,12 +234,17 @@ contract Junto {
         }
     }
 
+    // Nuke contract can be done by either party.
+    // Once this is done, parties are no longer
+    // able to retrieve thier collateral.
     function nukeContract() public payable {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
     
         contractState = State.Nuked;
+
+	// Send collaterals to forwarding address
         borrower.collateral.deposited = false;
         lender.collateral.deposited = false;
         uint totalCollateral = borrower.collateral.value + lender.collateral.value;
@@ -162,6 +253,8 @@ contract Junto {
         }
     }
 
+    // Either lender or borrower can mark the
+    // contract as ready to be resolved.
     function userReadyToResolve() public {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
@@ -171,6 +264,7 @@ contract Junto {
         participant.readyToResolve = true;
     }
 
+    // Remove ready to resolve state for party.
     function userUndoReadyToResolve() public {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
@@ -180,6 +274,9 @@ contract Junto {
         participant.readyToResolve = false;   
     }
 
+    // When both members are ready to resolve the
+    // contract, it can be marked as resolved,
+    // allowing parties to retrieve thier collateral.
     function resolveContract() public {
         require(contractState == State.Locked);
         require(msg.sender == lender.addr ||
@@ -190,21 +287,28 @@ contract Junto {
         contractState = State.Resolved;
     }
 
+    // Checks whether the contract is okay to
+    // be destroyed, and destroy it.
     function destroyContract() public {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
+        // Don't allow the contract to be destroyed
+        // if it's being enforced.
+        require(contractState != State.Locked,
+                "Contract is being enforced");
+        // Don't allow contract to be destroyed
+        // if not all value has been retrieved.
         bool valueInContract = 
-            lender.collateral.deposited || 
-            borrower.collateral.deposited ||
-            payment.deposited;
-        require(contractState == State.Nuked ||
-                (contractState == State.Prepare &&
-                 !valueInContract) ||
-                (contractState == State.Resolved &&
-                 !valueInContract),
-                "Contract is not ready to be destroyed");
+            (lender.collateral.deposited && 
+             lender.collateral.value > 0) || 
+            (borrower.collateral.deposited &&
+             borrower.collateral.value > 0) ||
+            (payment.deposited &&
+             payment.value > 0);
+        require(!valueInContract,
+		"Not all value withdrawn from contract");
+        // Destroy contract.
         selfdestruct(forwardingAddress);
     }
 
 }
-
