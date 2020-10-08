@@ -139,7 +139,7 @@ contract Junto {
                 "Collateral value is zero");
 
         participantMap[msg.sender].collateral.deposited = false;
-        participantMap[msg.sender].addr.transfer(participant.collateral.value); 
+        participantMap[msg.sender].addr.transfer(participantMap[msg.sender].collateral.value); 
     }
 
     // Deposit payment into the contract for borrower.
@@ -306,6 +306,5 @@ contract Junto {
 		"Not all value withdrawn from contract");
         // Destroy contract.
         selfdestruct(forwardingAddress);
-    }:
-
+    }
 }
