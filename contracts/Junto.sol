@@ -115,15 +115,14 @@ contract Junto {
         require(msg.value < 1e60);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
-	require(participant.collateral.value > 0,
+	    require(participantMap[msg.sender].collateral.value > 0,
 		"Collateral value is zero");
-        require(!participant.collateral.deposited, 
+        require(!participantMap[msg.sender].collateral.deposited, 
                 "Collateral already deposited");
-        require(msg.value == participant.collateral.value, 
+        require(msg.value == participantMap[msg.sender].collateral.value, 
                 "Amount added not equal to collateral value");
     
-        participant.collateral.deposited = true;
+        participantMap[msg.sender].collateral.deposited = true;
     }
 
     // Withdraw collateral from the contract.
@@ -134,14 +133,13 @@ contract Junto {
                 contractState == State.Resolved);
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
-        Participant storage participant = participantMap[msg.sender];
-        require(participant.collateral.deposited,
+        require(participantMap[msg.sender].collateral.deposited,
                 "Collateral has not been deposited yet");
-        require(participant.collateral.value > 0,
+        require(participantMap[msg.sender].collateral.value > 0,
                 "Collateral value is zero");
 
-        participant.collateral.deposited = false;
-        participant.addr.transfer(participant.collateral.value); 
+        participantMap[msg.sender].collateral.deposited = false;
+        participantMap[msg.sender].addr.transfer(participant.collateral.value); 
     }
 
     // Deposit payment into the contract for borrower.
@@ -182,7 +180,7 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         
-	participantMap[msg.sender].signedContract = true;
+        participantMap[msg.sender].signedContract = true;
     }
 
     // Remove signature from contract.
@@ -193,8 +191,7 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
 
-        Participant storage participant = participantMap[msg.sender];
-        participant.signedContract = false;
+        participantMap[msg.sender].signedContract = false;
     }
 
     // Check whether the contract is ready for enforcement
@@ -262,8 +259,7 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
 
-        Participant storage participant = participantMap[msg.sender];
-        participant.readyToResolve = true;
+        participantMap[msg.sender].readyToResolve = true;
     }
 
     // Remove ready to resolve state for party.
@@ -272,8 +268,7 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
 
-        Participant storage participant = participantMap[msg.sender];
-        participant.readyToResolve = false;   
+        participantMap[msg.sender].readyToResolve = false;   
     }
 
     // When both members are ready to resolve the
@@ -311,6 +306,6 @@ contract Junto {
 		"Not all value withdrawn from contract");
         // Destroy contract.
         selfdestruct(forwardingAddress);
-    }
+    }:
 
 }
