@@ -17,10 +17,8 @@ describe("Junto", () => {
   
   
   beforeEach(async () => {
-
     const [owner] = await ethers.getSigners();
     junto = (await deployContract(owner, JuntoArtifact)) as Junto;
-
   });
 
   // 4
@@ -36,22 +34,23 @@ describe("Junto", () => {
     
     // 2
     expect(await junto.contractState()).to.eq(0);
-    await junto.specifyContract(lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+    await junto.specifyContract(
+      lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
 
     // 3
     expect(await junto.contractState()).to.eq(1);
-    expect((await junto.lender()).addr).to.eq(lenderAddr);
-    expect((await junto.borrower()).addr).to.eq(borrowerAddr);
-    expect(await junto.forwardingAddress()).to.eq(forwardAddr);
+    expect(await junto.lenderAddr()).to.eq(lenderAddr);
+    expect(await junto.borrowerAddr()).to.eq(borrowerAddr);
+    expect(await junto.forwardingAddr()).to.eq(forwardAddr);
 
-    expect((await junto.lender()).signedContract).to.eq(false);
-    expect((await junto.borrower()).signedContract).to.eq(false);
-    await junto.connect(lender).signContract();
-    await junto.connect(borrower).signContract();
+    expect(await junto.lenderSignedContract()).to.eq(false);
+    expect(await junto.borrowerSignedContract()).to.eq(false);
+    await junto.connect(lender).lenderSignContract();
+    await junto.connect(borrower).borrowerSignContract();
     
     // These are currently failing... potential issue with struct in .sol
-    //expect((await junto.lender()).signedContract).to.eq(true);
-    //expect((await junto.borrower()).signedContract).to.eq(true);
+    expect(await junto.lenderSignedContract()).to.eq(true);
+    expect(await junto.borrowerSignedContract()).to.eq(true);
     });
   });
 

@@ -27,26 +27,26 @@ contract Junto {
     State public contractState;
 
     // Lender State
-    address payable lenderAddr;
-    bool lenderSignedContract;
-    bool lenderReadyToResolve;
+    address payable public lenderAddr;
+    bool public lenderSignedContract;
+    bool public lenderReadyToResolve;
 
     // Borrower State
-    address payable borrowerAddr;
-    bool borrowerSignedContract;
-    bool borrowerReadyToResolve;
+    address payable public borrowerAddr;
+    bool public borrowerSignedContract;
+    bool public borrowerReadyToResolve;
 
     // Lender Collateral Account
-    uint lenderCollateralValue;
-    bool lenderCollateralDeposited;
+    uint public lenderCollateralValue;
+    bool public lenderCollateralDeposited;
 
     // Borrower Collateral Account
-    uint borrowerCollateralValue;
-    bool borrowerCollateralDeposited;
+    uint public borrowerCollateralValue;
+    bool public borrowerCollateralDeposited;
 
     // Borrower Payment Account
-    uint borrowerPaymentValue;
-    bool borrowerPaymentDeposited;
+    uint public borrowerPaymentValue;
+    bool public borrowerPaymentDeposited;
 
     // Forwarding address for if the contract is nuked.
     // For the contract to be effective,
@@ -206,21 +206,21 @@ contract Junto {
     function doesContractMeetExecutionCriteria() private view 
         returns (bool) {
         require(contractState == State.Prepare,
-		"Contract has already executed.");
+		    "Contract has already executed.");
         
 	    // Check payments
         require(lenderCollateralDeposited,
-		"Lender has not desposited collateral");
+		    "Lender has not desposited collateral");
         require(borrowerCollateralDeposited,
-		"Borrower has not desposited collateral");
+		    "Borrower has not desposited collateral");
         require(borrowerPaymentDeposited,
-		"Borrower has not deposited payment");
+		    "Borrower has not deposited payment");
         
 	    // Check signatures
         require(lenderSignedContract, 
-		"Lender has not signed contract.");
+		    "Lender has not signed contract.");
         require(borrowerSignedContract,
-		"Borrower has not signed contract");
+		    "Borrower has not signed contract");
 
         return true;
     }
@@ -321,7 +321,7 @@ contract Junto {
             (borrowerPaymentDeposited &&
              borrowerPaymentValue > 0);
         require(!valueInContract,
-		"Not all value withdrawn from contract");
+		    "Not all value withdrawn from contract");
         // Destroy contract.
         selfdestruct(forwardingAddr);
     }
