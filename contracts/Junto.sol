@@ -182,8 +182,7 @@ contract Junto {
         require(msg.sender == lender.addr ||
                 msg.sender == borrower.addr);
         
-	Participant storage participant = participantMap[msg.sender];
-        participant.signedContract = true;
+	participantMap[msg.sender].signedContract = true;
     }
 
     // Remove signature from contract.
