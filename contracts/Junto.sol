@@ -65,8 +65,8 @@ contract Junto {
     }
 
     // Specify contract parameters
-    // (addresses of parties involved,
-    //  account values)
+    // (addresses of parties involved, account values)
+    // Account amounts are in wei
     function specifyContract(address payable lenderAddress, 
 	                         address payable borrowerAddress,
                              address payable forwardingAddress,
@@ -115,9 +115,9 @@ contract Junto {
 		        "Collateral value is zero");
         require(!borrowerCollateralDeposited, 
                 "Collateral already deposited");
-        require(msg.value == borrowerCollateralValue, 
-                "Amount added not equal to collateral value");
-    
+        // require(msg.value == borrowerCollateralValue, 
+        //         "Amount added not equal to collateral value");
+        borrowerCollateralValue = msg.value;
         borrowerCollateralDeposited = true;
     }
 
