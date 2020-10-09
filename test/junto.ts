@@ -106,15 +106,19 @@ describe("Junto", () => {
       expect(await junto.lenderCollateralValue()).to.eq(10);
       expect(await junto.borrowerCollateralValue()).to.eq(20);
 
+      // Deposit collateral
       await junto.connect(lender).lenderDepositCollateral({value: 10});
+      expect(await junto.getBalance()).to.eq(10);
       await junto.connect(borrower).borrowerDepositCollateral({value: 20});
-      
+      expect(await junto.getBalance()).to.eq(30);
       expect(await junto.lenderCollateralDeposited()).to.eq(true);
       expect(await junto.borrowerCollateralDeposited()).to.eq(true);
-
+      
+      // Withdraw the collateral
       await junto.connect(lender).lenderWithdrawCollateral();
+      expect(await junto.getBalance()).to.eq(20);
       await junto.connect(borrower).borrowerWithdrawCollateral();
-
+      expect(await junto.getBalance()).to.equal(0);
       expect(await junto.lenderCollateralDeposited()).to.eq(false);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
     });
@@ -129,16 +133,17 @@ describe("Junto", () => {
       expect(await junto.borrowerPaymentValue()).to.eq(10);
 
       await junto.connect(borrower).borrowerDepositPayment({value: 10});
+      expect(await junto.getBalance()).to.eq(10);
       expect(await junto.borrowerPaymentDeposited()).to.eq(true);
 
       await junto.connect(borrower).borrowerWithdrawPayment();
+      expect(await junto.getBalance()).to.eq(0);
       expect(await junto.borrowerPaymentDeposited()).to.eq(false);
     });
   });
 
   describe("execute contract", async () => {
-    // 5
-    it("put contract into lock state", async () => {
+    it("should put contract into lock state", async () => {
 
       await junto.specifyContract(
         lenderAddr, borrowerAddr, forwardAddr, 0, 0, 0);
@@ -158,7 +163,53 @@ describe("Junto", () => {
       expect(await junto.contractState()).to.eq(2);
     });
 
+    it("should put contract into lock state with payment", async () => {
+
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 0, 0, 10);
+  
+      await junto.connect(borrower).borrowerDepositPayment({value : 10});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+
+      expect(await junto.lenderCollateralDeposited()).to.eq(true);
+      expect(await junto.borrowerCollateralDeposited()).to.eq(true);
+      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
+      expect(await junto.lenderSignedContract()).to.eq(true);
+      expect(await junto.borrowerSignedContract()).to.eq(true);
+      
+      // Should execute payment and lock
+      expect(await junto.getBalance()).to.eq(10);
+      await junto.connect(lender).lockContract();
+      expect(await junto.getBalance()).to.eq(0);
+      expect(await junto.contractState()).to.eq(2); // Enum #2 == Locked
+    });
+
     it("should nuke contract", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 10, 0);
+      const forwardAddrValueInitial = await forward.getBalance();
+  
+      await junto.connect(borrower).borrowerDepositCollateral({value: 10});
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+      expect(await junto.getBalance()).to.eq(20);
+      await junto.connect(lender).nukeContract();
+      expect(await junto.getBalance()).to.eq(0);
+      
+      // Enum #3 == Nuked
+      expect(await junto.contractState()).to.eq(3);
+      expect(await junto.lenderCollateralDeposited()).to.eq(false);
+      expect(await junto.borrowerCollateralDeposited()).to.eq(false);
+
+      // Check that the contract value was added to forward signer.
+      const forwardAddrValueFinal = await forward.getBalance();
+      expect(forwardAddrValueFinal.sub(forwardAddrValueInitial)).to.eq(20);      
+    });
+
+    it("should become ready to resolve / unresolve contract", async () => {
       await junto.specifyContract(
         lenderAddr, borrowerAddr, forwardAddr, 10, 10, 0);
   
@@ -168,18 +219,98 @@ describe("Junto", () => {
       await junto.connect(borrower).borrowerSignContract();
       await junto.connect(lender).lockContract();
 
-      await junto.connect(lender).nukeContract();
 
-      // Enum #3 == Nuked
-      expect(await junto.contractState()).to.eq(3);
+      expect(await junto.borrowerReadyToResolve()).to.eq(false);
+      expect(await junto.lenderReadyToResolve()).to.eq(false);
+
+      await junto.connect(lender).lenderSetReadyToResolve();
+      await junto.connect(borrower).borrowerSetReadyToResolve();
+
+      expect(await junto.borrowerReadyToResolve()).to.eq(true);
+      expect(await junto.lenderReadyToResolve()).to.eq(true);
+
+      await junto.connect(lender).lenderUndoReadyToResolve();
+      await junto.connect(borrower).borrowerUndoReadyToResolve();
+
+      expect(await junto.borrowerReadyToResolve()).to.eq(false);
+      expect(await junto.lenderReadyToResolve()).to.eq(false);
+    });
+
+
+    it("should resolve contract", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 10, 0);
+  
+      await junto.connect(borrower).borrowerDepositCollateral({value: 10});
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+      await junto.connect(lender).lenderSetReadyToResolve();
+      await junto.connect(borrower).borrowerSetReadyToResolve();
+      await junto.connect(lender).resolveContract();
+
+      expect(await junto.contractState()).to.eq(4); // Enum #4 == resolved
+    });
+
+    it("should resolve contract and let borrower / lender withdraw collateral", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 10, 0);
+  
+      await junto.connect(borrower).borrowerDepositCollateral({value: 10});
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+      await junto.connect(lender).lenderSetReadyToResolve();
+      await junto.connect(borrower).borrowerSetReadyToResolve();
+      await junto.connect(lender).resolveContract();
+
+      expect(await junto.getBalance()).to.eq(20);
+      expect(await junto.lenderCollateralDeposited()).to.eq(true);
+      expect(await junto.borrowerCollateralDeposited()).to.eq(true);
+
+      await junto.connect(lender).lenderWithdrawCollateral();
+      
+      expect(await junto.getBalance()).to.eq(10);
       expect(await junto.lenderCollateralDeposited()).to.eq(false);
+      
+      await junto.connect(borrower).borrowerWithdrawCollateral();
+      
+      expect(await junto.getBalance()).to.eq(0);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
+    });
 
+    it("should destroy contract after successful execution", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+      
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(borrower).borrowerDepositCollateral({value: 20});
+      await junto.connect(borrower).borrowerDepositPayment({value: 30});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+      await junto.connect(lender).lenderSetReadyToResolve();
+      await junto.connect(borrower).borrowerSetReadyToResolve();
+      await junto.connect(lender).resolveContract();
+      await junto.connect(lender).lenderWithdrawCollateral();
+      await junto.connect(borrower).borrowerWithdrawCollateral();
+      await junto.connect(lender).destroyContract();
+    });
 
+    it("should destroy contract after nuking", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
 
-      //await counter.countDown();
-      //const count = await counter.getCount();
-      expect(1).to.eq(1);
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(borrower).borrowerDepositCollateral({value: 20});
+      await junto.connect(borrower).borrowerDepositPayment({value: 30});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+      await junto.connect(lender).nukeContract();
+      await junto.connect(lender).destroyContract();
     });
   });
 });
