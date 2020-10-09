@@ -64,6 +64,10 @@ contract Junto {
         borrowerReadyToResolve = false;
     }
 
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     // Specify contract parameters
     // (addresses of parties involved, account values)
     // Account amounts are in wei
@@ -115,9 +119,9 @@ contract Junto {
 		        "Collateral value is zero");
         require(!borrowerCollateralDeposited, 
                 "Collateral already deposited");
-        // require(msg.value == borrowerCollateralValue, 
-        //         "Amount added not equal to collateral value");
-        borrowerCollateralValue = msg.value;
+        require(msg.value == borrowerCollateralValue, 
+                "Amount added not equal to collateral value");
+        // borrowerCollateralValue = msg.value;
         borrowerCollateralDeposited = true;
     }
 
@@ -201,14 +205,15 @@ contract Junto {
         borrowerSignedContract = false;
     }
 
-    // Check whether the contract is ready for enforcement
+    // Set contract to be enforced.
+    // Checks whether the contract is ready for enforcement
     // (payments have been made, both parties have signed)
-    function doesContractMeetExecutionCriteria() private view 
-        returns (bool) {
-        require(contractState == State.Prepare,
-		    "Contract has already executed.");
+    function lockContract() external {
+        require(contractState == State.Prepare);
+        require(msg.sender == lenderAddr ||
+                msg.sender == borrowerAddr);
         
-	    // Check payments
+        // Check payments
         require(lenderCollateralDeposited,
 		    "Lender has not desposited collateral");
         require(borrowerCollateralDeposited,
@@ -221,20 +226,11 @@ contract Junto {
 		    "Lender has not signed contract.");
         require(borrowerSignedContract,
 		    "Borrower has not signed contract");
-
-        return true;
-    }
-
-    // Set contract to be enforced.
-    function lockContract() external payable {
-        require(contractState == State.Prepare);
-        require(doesContractMeetExecutionCriteria());
-        require(msg.sender == lenderAddr ||
-                msg.sender == borrowerAddr);
     
         // Contract is now locked, execute payment to lender.
-        contractState == State.Locked;
+        contractState = State.Locked;
         if (borrowerPaymentValue > 0) {
+            require(borrowerPaymentDeposited);
             borrowerPaymentDeposited = false;
             lenderAddr.transfer(borrowerPaymentValue);
         }
@@ -244,9 +240,11 @@ contract Junto {
     // Once this is done, parties are no longer
     // able to retrieve thier collateral.
     function nukeContract() external {
-        require(contractState == State.Locked);
+        require(contractState == State.Locked,
+                "Cannot nuke contract in this state.");
         require(msg.sender == lenderAddr ||
-                msg.sender == borrowerAddr);
+                msg.sender == borrowerAddr, 
+                "This address cannot call nukeContract");
     
         contractState = State.Nuked;
 
