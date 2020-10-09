@@ -125,50 +125,57 @@ describe("Junto", () => {
       await junto.specifyContract(
         lenderAddr, borrowerAddr, forwardAddr, 0, 0, 10);
 
-        expect(await junto.borrowerPaymentDeposited()).to.eq(false);
-        expect(await junto.borrowerPaymentValue()).to.eq(10);
-  
-        await junto.connect(borrower).borrowerDepositPayment({value: 10});
-        expect(await junto.borrowerPaymentDeposited()).to.eq(true);
-  
-        await junto.connect(borrower).borrowerWithdrawPayment();
-        expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerPaymentValue()).to.eq(10);
+
+      await junto.connect(borrower).borrowerDepositPayment({value: 10});
+      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
+
+      await junto.connect(borrower).borrowerWithdrawPayment();
+      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
     });
   });
 
   describe("execute contract", async () => {
     // 5
-    it("should fail", async () => {
-      const [lender, borrower, forward] = await ethers.getSigners();
-    
-      // 1
-      lenderAddr = await lender.getAddress();
-      borrowerAddr = await borrower.getAddress();
-      forwardAddr = await forward.getAddress();
-      
-      // 2
-      expect(await junto.contractState()).to.eq(0);
+    it("put contract into lock state", async () => {
+
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 0, 0, 0);
   
-      // 3
-      expect(await junto.contractState()).to.eq(1);
-      expect(await junto.lenderAddr()).to.eq(lenderAddr);
-      expect(await junto.borrowerAddr()).to.eq(borrowerAddr);
-      expect(await junto.forwardingAddr()).to.eq(forwardAddr);
-  
-      expect(await junto.lenderSignedContract()).to.eq(false);
-      expect(await junto.borrowerSignedContract()).to.eq(false);
       await junto.connect(lender).lenderSignContract();
       await junto.connect(borrower).borrowerSignContract();
-      
-      // These are currently failing... potential issue with struct in .sol
+
+      expect(await junto.lenderCollateralDeposited()).to.eq(true);
+      expect(await junto.borrowerCollateralDeposited()).to.eq(true);
+      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
       expect(await junto.lenderSignedContract()).to.eq(true);
       expect(await junto.borrowerSignedContract()).to.eq(true);
+
+      await junto.connect(lender).lockContract();
+
+      // Enum #2 == Locked
+      expect(await junto.contractState()).to.eq(2);
     });
 
-    it("should count down", async () => {
-      //await counter.countUp();
+    it("should nuke contract", async () => {
+      await junto.specifyContract(
+        lenderAddr, borrowerAddr, forwardAddr, 10, 10, 0);
+  
+      await junto.connect(borrower).borrowerDepositCollateral({value: 10});
+      await junto.connect(lender).lenderDepositCollateral({value: 10});
+      await junto.connect(lender).lenderSignContract();
+      await junto.connect(borrower).borrowerSignContract();
+      await junto.connect(lender).lockContract();
+
+      await junto.connect(lender).nukeContract();
+
+      // Enum #3 == Nuked
+      expect(await junto.contractState()).to.eq(3);
+      expect(await junto.lenderCollateralDeposited()).to.eq(false);
+      expect(await junto.borrowerCollateralDeposited()).to.eq(false);
+
+
 
       //await counter.countDown();
       //const count = await counter.getCount();
