@@ -64,6 +64,10 @@ contract Junto {
         borrowerReadyToResolve = false;
     }
 
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     // Specify contract parameters
     // (addresses of parties involved, account values)
     // Account amounts are in wei
