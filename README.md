@@ -1,6 +1,8 @@
-# Typescript Solidity Dev Starter Kit
+# Junto
 
-This is a starter kit for developing, testing, and deploying smart contracts with a full Typescript environment. This stack uses [Buidler](https://buidler.dev) as the platform layer to orchestrate all the tasks. [Ethers](https://docs.ethers.io/ethers.js/html/index.html) is used for all Ethereum interactions and testing.
+A smart collateral contract to solve the game theoretical nash-equilibrium for sharing items with others. This contract aligns incentives using collateral that can be destroyed by either party if the contract falls through. Trying to make sharing easier / less risky!
+
+This project uses a starter kit for developing, testing, and deploying smart contracts with a full Typescript environment. This stack uses [Buidler](https://buidler.dev) as the platform layer to orchestrate all the tasks. [Ethers](https://docs.ethers.io/ethers.js/html/index.html) is used for all Ethereum interactions and testing.
 
 [Blog Post](https://medium.com/@rahulsethuram/the-new-solidity-dev-stack-buidler-ethers-waffle-typescript-tutorial-f07917de48ae)
 
