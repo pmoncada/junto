@@ -7,7 +7,6 @@ pragma experimental ABIEncoderV2;
 // Defines a smart collateral contract where both parties put collateral up. If the contract is unsuccessful
 // then the money gets forwarded to an agreed upon address. If successful, everyone gets their collateral
 // back. The contract also includes a payment option from the borrower to the lender.
-
 contract Junto {
     
     // The possible states of a Junto contract.
@@ -37,16 +36,17 @@ contract Junto {
     bool public borrowerReadyToResolve;
 
     // Lender Collateral Account
-    uint public lenderCollateralValue;
+    uint256 public lenderCollateralValue;
     bool public lenderCollateralDeposited;
 
     // Borrower Collateral Account
-    uint public borrowerCollateralValue;
+    uint256 public borrowerCollateralValue;
     bool public borrowerCollateralDeposited;
 
     // Borrower Payment Account
-    uint public borrowerPaymentValue;
+    uint256 public borrowerPaymentValue;
     bool public borrowerPaymentDeposited;
+    // TODO: Maybe make separate bool for payment executed
 
     // Forwarding address for if the contract is nuked.
     // For the contract to be effective,
@@ -74,11 +74,17 @@ contract Junto {
     function specifyContract(address payable lenderAddress, 
 	                         address payable borrowerAddress,
                              address payable forwardingAddress,
-                             uint lenderCollateralAmount, 
-                             uint borrowerCollateralAmount,
-                             uint borrowerPaymentAmount) external {
-        
+                             uint256 lenderCollateralAmount, 
+                             uint256 borrowerCollateralAmount,
+                             uint256 borrowerPaymentAmount) external {
         require(contractState == State.Blank);
+        // TODO: These should be commented back in after UI testing:
+        //require(lenderAddress != borrowerAddress);
+        //require(lenderAddress != forwardingAddress);
+        require(lenderCollateralAmount < 1e60);
+        require(borrowerCollateralValue < 1e60);
+        require(borrowerPaymentValue < 1e60);
+
         contractState = State.Prepare;
 
         // Set addresses
@@ -88,7 +94,7 @@ contract Junto {
         
         // Set contract values
         lenderCollateralValue = lenderCollateralAmount;
-        borrowerCollateralValue = borrowerCollateralAmount;
+        borrowerCollateralValue = borrowerCollateralAmount; 
         borrowerPaymentValue = borrowerPaymentAmount;
 
         // Set deposited to true if the amount is zero
@@ -97,142 +103,91 @@ contract Junto {
         borrowerPaymentDeposited = borrowerPaymentAmount == 0;
     }
 
-    function lenderDepositCollateral() external payable {
-        require(contractState == State.Prepare);
+    // Tells us that they are ready to execute the contract.
+    // This function will deposit the collateral of signer.
+    // If the borrower has also signed the contract, then the 
+    // contract will move to the locked state.
+    function signContract() external payable {
+        require(contractState == State.Prepare,
+                "Cannot sign the contract in this state.");
+        require(msg.sender == lenderAddr || 
+                msg.sender == borrowerAddr, 
+                "Only the lender/borrower can call this function");
         require(msg.value < 1e60);
-        require(msg.sender == lenderAddr);
-	    require(lenderCollateralValue > 0,
-		        "Collateral value is zero");
-        require(!lenderCollateralDeposited, 
-                "Collateral already deposited");
-        require(msg.value == lenderCollateralValue, 
-                "Amount added not equal to collateral value");
-    
-        lenderCollateralDeposited = true;
-    }
-
-    function borrowerDepositCollateral() external payable {
-        require(contractState == State.Prepare);
-        require(msg.value < 1e60);
-        require(msg.sender == borrowerAddr);
-	    require(borrowerCollateralValue > 0,
-		        "Collateral value is zero");
-        require(!borrowerCollateralDeposited, 
-                "Collateral already deposited");
-        require(msg.value == borrowerCollateralValue, 
-                "Amount added not equal to collateral value");
-        // borrowerCollateralValue = msg.value;
-        borrowerCollateralDeposited = true;
-    }
-
-    function borrowerDepositPayment() external payable {
-        require(contractState == State.Prepare);
-        require(msg.value < 1e60);
-        require(msg.sender == borrowerAddr);
-	    require(borrowerPaymentValue > 0,
-		        "Collateral value is zero");
-        require(!borrowerPaymentDeposited, 
-                "Collateral already deposited");
-        require(msg.value == borrowerPaymentValue, 
-                "Amount added not equal to collateral value");
-    
-        borrowerPaymentDeposited = true;
-    }
-
-    function lenderWithdrawCollateral() external {
-        require(contractState == State.Prepare ||
-                contractState == State.Resolved);
-        require(msg.sender == lenderAddr);
-        require(lenderCollateralValue > 0,
-                "Collateral value is zero");
-        require(lenderCollateralDeposited,
-                "Collateral has not been deposited yet");
-
-        lenderCollateralDeposited = false;
-        lenderAddr.transfer(lenderCollateralValue); 
-    }
-
-    function borrowerWithdrawCollateral() external {
-        require(contractState == State.Prepare ||
-                contractState == State.Resolved);
-        require(msg.sender == borrowerAddr);
-        require(borrowerCollateralValue > 0,
-                "Collateral value is zero");
-        require(borrowerCollateralDeposited,
-                "Collateral has not been deposited yet");
-
-        borrowerCollateralDeposited = false;
-        borrowerAddr.transfer(borrowerCollateralValue); 
-    }
-
-    function borrowerWithdrawPayment() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == borrowerAddr);
-        require(borrowerPaymentValue > 0,
-                "Collateral value is zero");
-        require(borrowerPaymentDeposited,
-                "Collateral has not been deposited yet");
-
-        borrowerPaymentDeposited = false;
-        borrowerAddr.transfer(borrowerPaymentValue); 
-    }
-
-    function lenderSignContract() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == lenderAddr);
         
-        lenderSignedContract = true;
+        // Deposit the collateral and sign the contract for signer
+        if (msg.sender == lenderAddr) {
+            require(msg.value == lenderCollateralValue, 
+                "Amount added not equal to lender collateral value");
+            lenderDepositCollateral();
+            lenderSignedContract = true;
+        }
+        if (msg.sender == borrowerAddr) {
+            require(
+                msg.value == borrowerCollateralValue + borrowerPaymentValue,
+                "Amount added not equal to borrower collateral and payment value");
+            borrowerDepositCollateral();
+            borrowerDepositPayment();
+            borrowerSignedContract = true;
+        }
+
+        // If both have signed, lock the contract
+        if (borrowerSignedContract && lenderSignedContract) {
+            lockContract();
+        }
     }
 
-    function borrowerSignContract() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == borrowerAddr);
+    function removeSignatureFromContract() external {
+        require(contractState == State.Prepare, 
+            "Cannot remove signature at this stage");
+        require(msg.sender == lenderAddr || msg.sender == borrowerAddr,
+            "Only the lender/borrower can call this function");
         
-        borrowerSignedContract = true;
+        if (msg.sender == lenderAddr) {
+            lenderWithdrawCollateral();
+            lenderSignedContract = false;
+        }
+
+        if (msg.sender == borrowerAddr) {
+            borrowerWithdrawCollateral();
+            borrowerWithdrawPayment();
+            borrowerSignedContract = false;
+        } 
     }
 
-    function lenderRemoveSignatureFromContract() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == lenderAddr);
-
-        lenderSignedContract = false;
-    }
-
-    function borrowerRemoveSignatureFromContract() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == borrowerAddr);
-
-        borrowerSignedContract = false;
-    }
-
-    // Set contract to be enforced.
-    // Checks whether the contract is ready for enforcement
-    // (payments have been made, both parties have signed)
-    function lockContract() external {
-        require(contractState == State.Prepare);
-        require(msg.sender == lenderAddr ||
-                msg.sender == borrowerAddr);
+    // Either lender or borrower can mark the
+    // contract as ready to be resolved.
+    function setReadyToResolve() external {
+        require(contractState == State.Locked);
+        require(
+            msg.sender == lenderAddr || msg.sender == borrowerAddr,
+            "Only the lender/borrower can call this function");
         
-        // Check payments
-        require(lenderCollateralDeposited,
-		    "Lender has not desposited collateral");
-        require(borrowerCollateralDeposited,
-		    "Borrower has not desposited collateral");
-        require(borrowerPaymentDeposited,
-		    "Borrower has not deposited payment");
+        // Set ready to resolve to true
+        if (msg.sender == lenderAddr) {
+            lenderReadyToResolve = true;
+        }
+        if (msg.sender == borrowerAddr) {
+            borrowerReadyToResolve = true;
+        }
         
-	    // Check signatures
-        require(lenderSignedContract, 
-		    "Lender has not signed contract.");
-        require(borrowerSignedContract,
-		    "Borrower has not signed contract");
-    
-        // Contract is now locked, execute payment to lender.
-        contractState = State.Locked;
-        if (borrowerPaymentValue > 0) {
-            require(borrowerPaymentDeposited);
-            borrowerPaymentDeposited = false;
-            lenderAddr.transfer(borrowerPaymentValue);
+        if (borrowerReadyToResolve && lenderReadyToResolve) {
+            resolveContract();
+        }
+    }
+
+    function undoReadyToResolve() external {
+        require(contractState == State.Locked);
+        require(
+            msg.sender == lenderAddr || msg.sender == borrowerAddr,
+            "Only the lender/borrower can call this function");
+
+        // Set ready to resolve to true
+        if (msg.sender == lenderAddr) {
+            lenderReadyToResolve = false;
+        }
+        if (msg.sender == borrowerAddr) {
+            borrowerReadyToResolve = false;
         }
     }
 
@@ -257,54 +212,9 @@ contract Junto {
         }
     }
 
-    // Either lender or borrower can mark the
-    // contract as ready to be resolved.
-    function lenderSetReadyToResolve() external {
-        require(contractState == State.Locked);
-        require(msg.sender == lenderAddr);
-
-        lenderReadyToResolve = true;
-    }
-
-    function borrowerSetReadyToResolve() external {
-        require(contractState == State.Locked);
-        require(msg.sender == borrowerAddr);
-
-        borrowerReadyToResolve = true;
-    }
-
-    function lenderUndoReadyToResolve() external {
-        require(contractState == State.Locked);
-        require(msg.sender == lenderAddr);
-
-        lenderReadyToResolve = false;
-    }
-
-    function borrowerUndoReadyToResolve() external {
-        require(contractState == State.Locked);
-        require(msg.sender == borrowerAddr);
-
-        borrowerReadyToResolve = false;
-    }
-
-    // When both members are ready to resolve the
-    // contract, it can be marked as resolved,
-    // allowing parties to retrieve thier collateral.
-    function resolveContract() external {
-        require(contractState == State.Locked);
-        require(msg.sender == lenderAddr ||
-                msg.sender == borrowerAddr);
-        require(lenderReadyToResolve);
-        require(borrowerReadyToResolve);
-    
-        contractState = State.Resolved;
-    }
-
     // Checks whether the contract is okay to
     // be destroyed, and destroy it.
     function destroyContract() external {
-        require(msg.sender == lenderAddr ||
-                msg.sender == borrowerAddr);
         // Don't allow the contract to be destroyed
         // if it's being enforced.
         require(contractState != State.Locked,
@@ -324,4 +234,122 @@ contract Junto {
         selfdestruct(forwardingAddr);
     }
 
+    // These funcitons are all private functions below this line  
+
+    function lenderDepositCollateral() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+	    require(lenderCollateralValue > 0,
+		        "Collateral value is zero");
+        require(!lenderCollateralDeposited, 
+                "Collateral already deposited");
+    
+        lenderCollateralDeposited = true;
+    }
+
+    function borrowerDepositCollateral() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+	    require(borrowerCollateralValue > 0,
+		        "Collateral value is zero");
+        require(!borrowerCollateralDeposited, 
+                "Collateral already deposited");
+        borrowerCollateralDeposited = true;
+    }
+
+    function borrowerDepositPayment() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+	    require(borrowerPaymentValue > 0,
+		        "Collateral value is zero");
+        require(!borrowerPaymentDeposited, 
+                "Collateral already deposited");
+        borrowerPaymentDeposited = true;
+    }
+
+    function lenderWithdrawCollateral() private {
+        require(contractState == State.Prepare ||
+                contractState == State.Resolved,
+                "Cannot call function in this state");
+        require(lenderCollateralValue > 0,
+                "Collateral value is zero");
+        require(lenderCollateralDeposited,
+                "Collateral has not been deposited yet");
+
+        lenderCollateralDeposited = false;
+        lenderAddr.transfer(lenderCollateralValue); 
+    }
+
+    function borrowerWithdrawCollateral() private {
+        require(contractState == State.Prepare ||
+                contractState == State.Resolved,
+                "Cannot call function in this state");
+        require(msg.sender == borrowerAddr);
+        require(borrowerCollateralValue > 0,
+                "Collateral value is zero");
+        require(borrowerCollateralDeposited,
+                "Collateral has not been deposited yet");
+
+        borrowerCollateralDeposited = false;
+        borrowerAddr.transfer(borrowerCollateralValue); 
+    }
+
+    function borrowerWithdrawPayment() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+        require(msg.sender == borrowerAddr);
+        require(borrowerPaymentValue > 0,
+                "Collateral value is zero");
+        require(borrowerPaymentDeposited,
+                "Collateral has not been deposited yet");
+
+        borrowerPaymentDeposited = false;
+        borrowerAddr.transfer(borrowerPaymentValue); 
+    }
+
+    // Set contract to be enforced.
+    // Checks whether the contract is ready for enforcement
+    // (payments have been made, both parties have signed)
+    function lockContract() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+        
+        // Check payments
+        require(lenderCollateralDeposited,
+		    "Lender has not desposited collateral");
+        require(borrowerCollateralDeposited,
+		    "Borrower has not desposited collateral");
+        require(borrowerPaymentDeposited,
+		    "Borrower has not deposited payment");
+        
+	    // Check signatures
+        require(lenderSignedContract, 
+		    "Lender has not signed contract.");
+        require(borrowerSignedContract,
+		    "Borrower has not signed contract");
+    
+        // Contract is now locked, execute payment to lender.
+        contractState = State.Locked;
+        if (borrowerPaymentValue > 0) {
+            require(borrowerPaymentDeposited);
+            borrowerPaymentDeposited = false;
+            lenderAddr.transfer(borrowerPaymentValue);
+        }
+    }
+
+    // When both members are ready to resolve the
+    // contract, it can be marked as resolved,
+    // allowing parties to retrieve thier collateral.
+    function resolveContract() private {
+        require(contractState == State.Locked,
+                "Cannot call function in this state");
+        require(lenderReadyToResolve,
+                "Lender is not ready to resolve");
+        require(borrowerReadyToResolve,
+                "Borrower is not ready to resolve");
+    
+        contractState = State.Resolved;
+        lenderWithdrawCollateral();
+        borrowerWithdrawCollateral();
+    }
 }
