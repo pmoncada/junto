@@ -119,15 +119,21 @@ contract Junto {
         if (msg.sender == lenderAddr) {
             require(msg.value == lenderCollateralValue, 
                 "Amount added not equal to lender collateral value");
-            lenderDepositCollateral();
+	    if (lenderCollateralValue > 0) {    
+            	lenderDepositCollateral();
+	    }
             lenderSignedContract = true;
         }
         if (msg.sender == borrowerAddr) {
             require(
                 msg.value == borrowerCollateralValue + borrowerPaymentValue,
                 "Amount added not equal to borrower collateral and payment value");
-            borrowerDepositCollateral();
-            borrowerDepositPayment();
+	    if (borrowerCollateralValue > 0) {
+	    	borrowerDepositCollateral();
+	    }
+            if (borrowerPaymentValue > 0) {
+	    	borrowerDepositPayment();
+	    }
             borrowerSignedContract = true;
         }
 
