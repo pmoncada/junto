@@ -1,9 +1,294 @@
-// The object 'Contracts' will be injected here, which contains all data for all contracts, keyed on contract name:
-// Contracts['MyContract'] = {
 //  abi: [],
 //  address: "0x..",
 //  endpoint: "http://...."
 // }
+console.log("hello world")
+if(typeof(Contracts) === "undefined") var Contracts={ 'Junto': { 
+  abi: [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerAddr",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerCollateralDeposited",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerCollateralValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerPaymentDeposited",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerPaymentValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerReadyToResolve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "borrowerSignedContract",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "contractState",
+      "outputs": [
+        {
+          "internalType": "enum Junto.State",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "destroyContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "forwardingAddr",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lenderAddr",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lenderCollateralDeposited",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lenderCollateralValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lenderReadyToResolve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lenderSignedContract",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nukeContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "removeSignatureFromContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "setReadyToResolve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "signContract",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "lenderAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "borrowerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "forwardingAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lenderCollateralAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowerCollateralAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowerPaymentAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "specifyContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "undoReadyToResolve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+
+
+  address: "0x6705830a90D68A42a323C81D9f583dCB115F249D" }};
 
 function Junto(Contract) {
     this.web3 = null;
@@ -46,12 +331,12 @@ Junto.prototype.specifyContract = function() {
     // this.showLoader(true);
     //Sets message using the public update function of the smart contract
     this.instance.specifyContract(
-        "0xa48f2e0be8ab5a04a5eb1f86ead1923f03a207fd",
-        "0xa48f2e0be8ab5a04a5eb1f86ead1923f03a207fd",
-        "0xa48f2e0be8ab5a04a5eb1f86ead1923f03a207fd",
-        10,
-        10,
-        10,
+        "0x450A0cCFC21e42467040ad6d29B6E8a97B7ec68B",
+        "0x450A0cCFC21e42467040ad6d29B6E8a97B7ec68B",
+        "0x450A0cCFC21e42467040ad6d29B6E8a97B7ec68B",
+        1,
+        1,
+        1,
         {
             from: window.web3.eth.accounts[0],
             gas: 100000,
@@ -431,6 +716,7 @@ Junto.prototype.bindButton = function() {
     var that = this;
 
     $(document).on("click", "#specify-contract", function() {
+      console.log("Clicked specify");
         that.specifyContract();
         that.updateDisplay();
     });
@@ -476,8 +762,8 @@ Junto.prototype.bindButton = function() {
     });
 };
 
-if(typeof(Contracts) === "undefined") var Contracts={ MyContract: { abi: [] }};
 var junto = new Junto(Contracts['Junto']);
+window.junto=junto;
 
 $(document).ready(function() {
     junto.onReady();

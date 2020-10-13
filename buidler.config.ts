@@ -6,8 +6,8 @@ usePlugin("buidler-typechain");
 usePlugin("solidity-coverage");
 usePlugin("buidler-gas-reporter");
 
-const INFURA_API_KEY = "";
-const RINKEBY_PRIVATE_KEY = "";
+const INFURA_API_KEY = "764f6f1a940b4692a681d996e95dcdd2";
+const RINKEBY_PRIVATE_KEY = "0x1166a0757a8348a5ffcde19f24ec03ebaa0fbd8421913b895e6798c0f8fdd0be";
 const ETHERSCAN_API_KEY = "";
 
 const config: BuidlerConfig = {
