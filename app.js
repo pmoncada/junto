@@ -4,8 +4,8 @@
 // }
 if(typeof(Contracts) === "undefined") var Contracts={ 'Junto': {
   abi: [
-    { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [], "name": "borrowerAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerCollateralDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerCollateralValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerPaymentDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerPaymentValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerReadyToResolve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerSignedContract", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "contractState", "outputs": [ { "internalType": "enum Junto.State", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "destroyContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "forwardingAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "getBalance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderCollateralDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderCollateralValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderReadyToResolve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderSignedContract", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "nukeContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "removeSignatureFromContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "setReadyToResolve", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "signContract", "outputs": [], "stateMutability": "payable", "type": "function" }, { "inputs": [ { "internalType": "address payable", "name": "lenderAddress", "type": "address" }, { "internalType": "address payable", "name": "borrowerAddress", "type": "address" }, { "internalType": "address payable", "name": "forwardingAddress", "type": "address" }, { "internalType": "uint256", "name": "lenderCollateralAmount", "type": "uint256" }, { "internalType": "uint256", "name": "borrowerCollateralAmount", "type": "uint256" }, { "internalType": "uint256", "name": "borrowerPaymentAmount", "type": "uint256" } ], "name": "specifyContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "undoReadyToResolve", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ],
-  address: "0x6705830a90D68A42a323C81D9f583dCB115F249D" }};
+    { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [], "name": "borrowerAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerCollateralDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerCollateralValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerPaymentDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerPaymentValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerReadyToResolve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "borrowerSignedContract", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "contractState", "outputs": [ { "internalType": "enum Junto.State", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "destroyContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "forwardingAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "getBalance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderAddr", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderCollateralDeposited", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderCollateralValue", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderReadyToResolve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "lenderSignedContract", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "nukeContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "removeSignatureFromContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "setReadyToResolve", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "signContract", "outputs": [], "stateMutability": "payable", "type": "function" }, { "inputs": [ { "internalType": "address payable", "name": "lenderAddress", "type": "address" }, { "internalType": "address payable", "name": "borrowerAddress", "type": "address" }, { "internalType": "address payable", "name": "forwardingAddress", "type": "address" }, { "internalType": "uint256", "name": "lenderCollateralAmount", "type": "uint256" }, { "internalType": "uint256", "name": "borrowerCollateralAmount", "type": "uint256" }, { "internalType": "uint256", "name": "borrowerPaymentAmount", "type": "uint256" } ], "name": "specifyContract", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "undoReadyToResolve", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]
+}};
 
 function Junto(Contract) {
     this.web3 = null;
@@ -13,15 +13,15 @@ function Junto(Contract) {
     this.Contract = Contract;
 }
 
-Junto.prototype.onReady = function() {
-    this.init(function () {
+Junto.prototype.onReady = function(address) {
+    this.init(address, function () {
         $('#message').append("Welcome to Junto");
     });
     this.updateDisplay();
     this.bindButton();
 }
 
-Junto.prototype.init = function(cb) {
+Junto.prototype.init = function(address, cb) {
     // We create a new Web3 instance using either the Metamask provider
     // or an independent provider created towards the endpoint configured for the contract.
     this.web3 = new Web3(
@@ -32,7 +32,9 @@ Junto.prototype.init = function(cb) {
     var contract_interface = this.web3.eth.contract(this.Contract.abi);
 
     // Create the contract instance for the specific address provided in the configuration.
-    this.instance = contract_interface.at(this.Contract.address);
+   console.log(address)
+   console.log(address)
+    this.instance = contract_interface.at(address);
 
     cb();
 }
@@ -51,9 +53,9 @@ Junto.prototype.specifyContract = function() {
         $("#lender").val(),
         $("#borrower").val(),
         $("#forward").val(),
-        $("#lenderCollateral").val(),
-        $("#borrowerCollateral").val(),
-        $("#initialPayment").val(),
+        Number($("#lenderCollateral").val()),
+        Number($("#borrowerCollateral").val()),
+        Number($("#initialPayment").val()),
         {
             from: $("#lender").val(),
             gas: 100000,
@@ -70,14 +72,14 @@ Junto.prototype.specifyContract = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -104,14 +106,14 @@ Junto.prototype.signContractLender = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -123,7 +125,7 @@ Junto.prototype.signContractBorrower = function() {
     //Sets message using the public update function of the smart contract
     this.instance.signContractBorrower(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -136,14 +138,14 @@ Junto.prototype.signContractBorrower = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -155,7 +157,7 @@ Junto.prototype.resolveContractLender = function() {
     //Sets message using the public update function of the smart contract
     this.instance.resolveContractLender(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -169,14 +171,14 @@ Junto.prototype.resolveContractLender = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -188,7 +190,7 @@ Junto.prototype.resolveContractBorrower = function() {
     //Sets message using the public update function of the smart contract
     this.instance.resolveContractBorrower(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -202,14 +204,14 @@ Junto.prototype.resolveContractBorrower = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -221,7 +223,7 @@ Junto.prototype.lockContract = function() {
     //Sets message using the public update function of the smart contract
     this.instance.lockContract(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -234,14 +236,14 @@ Junto.prototype.lockContract = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -253,7 +255,7 @@ Junto.prototype.resolveContract = function() {
     //Sets message using the public update function of the smart contract
     this.instance.resolveContract(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -266,14 +268,14 @@ Junto.prototype.resolveContract = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -285,7 +287,7 @@ Junto.prototype.nukeContract = function() {
     //Sets message using the public update function of the smart contract
     this.instance.nukeContract(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -298,14 +300,14 @@ Junto.prototype.nukeContract = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -317,7 +319,7 @@ Junto.prototype.payLenderCollateral = function() {
     //Sets message using the public update function of the smart contract
     this.instance.payLenderCollateral(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000,
@@ -331,14 +333,14 @@ Junto.prototype.payLenderCollateral = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -350,7 +352,7 @@ Junto.prototype.payBorrowerCollateral = function() {
     //Sets message using the public update function of the smart contract
     this.instance.payBorrowerCollateral(
         {
-            from: window.web3.eth.accounts[0],
+            from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000,
@@ -364,14 +366,14 @@ Junto.prototype.payBorrowerCollateral = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -397,14 +399,14 @@ Junto.prototype.payBorrowerPayment = function() {
             // If success, wait for confirmation of transaction,
             // then clear form value
             else {
-                that.waitForReceipt(txHash, function(receipt) {
-                    that.showLoader(false);
-                    if (receipt.status) {
-                        console.log({ receipt });
-                    } else {
-                        console.log("error");
-                    }
-                });
+                //that.waitForReceipt(txHash, function(receipt) {
+                    //that.showLoader(false);
+                    //if (receipt.status) {
+                        //console.log({ receipt });
+                    //} else {
+                        //console.log("error");
+                    //}
+                //});
             }
         }
     );
@@ -432,6 +434,31 @@ Junto.prototype.updateDisplay = function() {
             $("#contractstate").text("resolved");
         }
     });
+  //this.instance.lenderCollateralValue(function(error, result){
+    //if(error){
+    //console.log(result)
+    //console.log(error)
+      //$(".error").show();
+    //}
+    //$("#lenderCollateral").val(result.toNumber())
+  //})
+  //this.instance.borrowerCollateralValue(function(error, result){
+    //console.log(result)
+    //console.log(error)
+    //if(error){
+      //$(".error").show();
+    //}
+    //$("#borrowerCollateral").val(result.toNumber())
+  //})
+  //this.instance.forwardingAddr(function(error, result){
+    //console.log(result)
+    //console.log(error)
+    //if(error){
+      //$(".error").show();
+    //}
+    //$("#forward").val(result)
+  //})
+
 };
 
 Junto.prototype.bindButton = function() {
@@ -488,15 +515,20 @@ var junto = new Junto(Contracts['Junto']);
 window.junto=junto;
 
 $(document).ready(function() {
-    junto.onReady();
-    //https://www.coolearth.org/cryptocurrency-donations/
-    var coolEarthAddress = "0x3c8cB169281196737c493AfFA8F49a9d823bB9c5"
-    $("#forward").val(coolEarthAddress)
-    window.ethereum.enable(function(err){
-      console.log(err);
-    })
-    window.junto.web3.eth.getAccounts(function(err,a){
-        $("#lender").val(a[0])
-        console.log(err)
-    })
+  const queryString = window.location.search;
+  var address = "0x6705830a90D68A42a323C81D9f583dCB115F249D";
+  if (queryString){
+    var address = queryString.substr(4);
+  }
+  junto.onReady(address);
+  //https://www.coolearth.org/cryptocurrency-donations/
+  var coolEarthAddress = "0x3c8cB169281196737c493AfFA8F49a9d823bB9c5"
+  $("#forward").val(coolEarthAddress)
+  window.ethereum.enable(function(err){
+    console.log(err);
+  })
+  window.junto.web3.eth.getAccounts(function(err,a){
+      $("#lender").val(a[0])
+      console.log(err)
+  })
 });
