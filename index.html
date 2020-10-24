@@ -1,1 +1,65 @@
-<d>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/web3@0.20.5/dist/web3.min.js"></script>
+        <script type="text/javascript" src="./app.js"></script>
+        <!-- The generated javascript and app.js will be substituted in below -->
+        <link rel="stylesheet" href="./app.css">
+        <!-- JAVASCRIPT -->
+
+        <!-- The app.css contents will be substituted in below -->
+        <!-- STYLE -->
+    </head>
+    <body>
+        <h1><span id="message"></span></h1>
+
+        <text>Current contract state: </text><text id="contractstate">null</text>
+        <h2></h2>
+
+        <br/>
+
+        <label for="lender">Lender:</label>
+        <input type="text" id="lender" name="lender" class="addressBox"><br><br>
+        <label for="borrower" >Borrower:</label>
+        <input type="text" id="borrower" name="borrower" class="addressBox"><br><br>
+
+        <label for="lenderCollateral">Lender Collateral:</label>
+        <input type="number" min="1" id="lenderCollateral" name="lenderCollateral" class="textBox"><br><br>
+
+        <label for="borrowerCollateral">Borrower Collateral:</label>
+        <input type="number" min="1" id="borrowerCollateral" name="borrowerCollateral" class="textBox"><br><br>
+
+        <label for="initialPayment">Intial Payment:</label>
+        <input type="number" min="0" id="initialPayment" name="initialPayment" class="textBox"><br><br>
+
+        <label for="forward">Forward:</label>
+
+        <input type="text" id="forward" name="forward" class="addressBox"><br><br>
+        <a href="https://www.coolearth.org/cryptocurrency-donations/"/>
+          Cool Earth
+        </a>
+
+        <br/>
+
+        <!--<input type="submit" value="Submit">-->
+        <input id="specify-contract" type="submit" value="Specify Contract" />
+        <input id="sign-contract-lender" type="submit" value="Sign Contract - Lender" />
+        <!--<input id="sign-contract-borrower" type="submit" value="Sign Contract - Borrower" />-->
+        <!--<input id="pay-lender-collateral" type="submit" value="Pay Lender Collateral" />-->
+        <!--<input id="pay-borrower-collateral" type="submit" value="Pay Borrower Collateral" />-->
+        <!--<input id="pay-borrower-payment" type="submit" value="Pay Borrower Payment" />-->
+
+        <!--<input id="lock-contract" type="submit" value="Lock Contract" />-->
+
+        <!--<input id="nuke-contract" type="submit" value="Nuke Contract" />-->
+
+        <!--<input id="resolve-contract-lender" type="submit" value="Resolve Contract Lender" />-->
+        <!--<input id="resolve-contract-borrower" type="submit" value="Resolve Contract Borrower" />-->
+
+        <!--<input id="reslolve-contract" type="submit" value="Resolve Contract" />-->
+
+    </body>
+</html>
