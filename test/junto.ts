@@ -39,7 +39,7 @@ describe("Junto", () => {
       expect(await junto.borrowerReadyToResolve()).to.eq(false);
 
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
 
       expect(await junto.contractState()).to.eq(1);
       expect(await junto.lenderAddr()).to.eq(lenderAddr);
@@ -47,10 +47,10 @@ describe("Junto", () => {
       expect(await junto.forwardingAddr()).to.eq(forwardAddr);
       expect(await junto.lenderCollateralValue()).to.eq(10);
       expect(await junto.borrowerCollateralValue()).to.eq(20);
-      expect(await junto.borrowerPaymentValue()).to.eq(30);
+      expect(await junto.borrowerInitialPaymentValue()).to.eq(30);
       expect(await junto.lenderCollateralDeposited()).to.eq(false);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(false);
     });
 
     it("should set contract without collateral", async () => {
@@ -61,7 +61,7 @@ describe("Junto", () => {
       expect(await junto.borrowerReadyToResolve()).to.eq(false);
 
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 0, 0, 0);
+        lenderAddr, borrowerAddr, forwardAddr, 0, 0, 0, 0);
 
       expect(await junto.contractState()).to.eq(1);
       expect(await junto.lenderAddr()).to.eq(lenderAddr);
@@ -69,15 +69,15 @@ describe("Junto", () => {
       expect(await junto.forwardingAddr()).to.eq(forwardAddr);
       expect(await junto.lenderCollateralValue()).to.eq(0);
       expect(await junto.borrowerCollateralValue()).to.eq(0);
-      expect(await junto.borrowerPaymentValue()).to.eq(0);
+      expect(await junto.borrowerInitialPaymentValue()).to.eq(0);
       expect(await junto.lenderCollateralDeposited()).to.eq(true);
       expect(await junto.borrowerCollateralDeposited()).to.eq(true);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(true);
     });
 
     it("should sign contract for lender", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 0, 0);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 0, 0, 0);
 
       expect(await junto.contractState()).to.eq(1); // Prepare state
       expect(await junto.lenderCollateralDeposited()).to.eq(false);
@@ -95,13 +95,13 @@ describe("Junto", () => {
 
     it ("should sign contract for borrower", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 0, 10, 20);
+        lenderAddr, borrowerAddr, forwardAddr, 0, 10, 20, 0);
       
       expect(await junto.contractState()).to.eq(1); // Prepare state
       expect(await junto.borrowerSignedContract()).to.eq(false);
       expect(await junto.getBalance()).to.eq(0);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(false);
       
       await junto.connect(borrower).signContract({value : 30});
 
@@ -109,12 +109,12 @@ describe("Junto", () => {
       expect(await junto.borrowerSignedContract()).to.eq(true);
       expect(await junto.getBalance()).to.eq(30);
       expect(await junto.borrowerCollateralDeposited()).to.eq(true);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(true);
     });
 
     it("should remove signature from contract for lender", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 0, 0);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 0, 0, 0);
       await junto.connect(lender).signContract({value : 10});
 
       expect(await junto.contractState()).to.eq(1); // Prepare state
@@ -132,14 +132,14 @@ describe("Junto", () => {
 
     it ("should remove signature from contract for borrower", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 0, 10, 20);
+        lenderAddr, borrowerAddr, forwardAddr, 0, 10, 20, 0);
       await junto.connect(borrower).signContract({value : 30});
 
       expect(await junto.contractState()).to.eq(1); // Prepare state
       expect(await junto.borrowerSignedContract()).to.eq(true);
       expect(await junto.getBalance()).to.eq(30);
       expect(await junto.borrowerCollateralDeposited()).to.eq(true);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(true);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(true);
       
       await junto.connect(borrower).removeSignatureFromContract();
 
@@ -147,25 +147,25 @@ describe("Junto", () => {
       expect(await junto.borrowerSignedContract()).to.eq(false);
       expect(await junto.getBalance()).to.eq(0);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(false);
     });
 
     it("both signatures should put contract into lock state", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
 
       expect(await junto.contractState()).to.eq(1); // Prepare
       expect(await junto.borrowerSignedContract()).to.eq(false);
       expect(await junto.getBalance()).to.eq(0);
       expect(await junto.borrowerCollateralDeposited()).to.eq(false);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(false);
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(false);
 
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
 
       expect(await junto.lenderCollateralDeposited()).to.eq(true);
       expect(await junto.borrowerCollateralDeposited()).to.eq(true);
-      expect(await junto.borrowerPaymentDeposited()).to.eq(false); // Paid
+      expect(await junto.borrowerInitialPaymentDeposited()).to.eq(false); // Paid
       expect(await junto.lenderSignedContract()).to.eq(true);
       expect(await junto.borrowerSignedContract()).to.eq(true);
       expect(await junto.contractState()).to.eq(2); // Locked
@@ -177,7 +177,7 @@ describe("Junto", () => {
     it("lender set ready to resolve", async () => {
 
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
 
@@ -192,7 +192,7 @@ describe("Junto", () => {
 
     it("borrower set ready to resolve", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
 
@@ -208,7 +208,7 @@ describe("Junto", () => {
     it("lender undo set ready to resolve", async () => {
 
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
       await junto.connect(lender).setReadyToResolve();
@@ -224,7 +224,7 @@ describe("Junto", () => {
 
     it("borrower undo set ready to resolve", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
       await junto.connect(borrower).setReadyToResolve();
@@ -240,7 +240,7 @@ describe("Junto", () => {
 
     it("both lender and borrower set ready to resolve", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
       
@@ -266,7 +266,7 @@ describe("Junto", () => {
     it("should nuke contract", async () => {
       const forwardAddrValueInitial = await forward.getBalance();
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
 
@@ -289,7 +289,7 @@ describe("Junto", () => {
 
     it("should successfully destroy contract after successful execution", async () => {
       await junto.specifyContract(
-        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+        lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
       await junto.connect(lender).signContract({value: 10});
       await junto.connect(borrower).signContract({value: 50});
       await junto.connect(lender).setReadyToResolve();
@@ -299,7 +299,7 @@ describe("Junto", () => {
 
     it("should successfully destroy contract after nuking", async () => {
         await junto.specifyContract(
-          lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30);
+          lenderAddr, borrowerAddr, forwardAddr, 10, 20, 30, 0);
         await junto.connect(lender).signContract({value: 10});
         await junto.connect(borrower).signContract({value: 50});
         await junto.connect(borrower).nukeContract();

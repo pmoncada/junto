@@ -6,7 +6,8 @@ pragma experimental ABIEncoderV2;
 
 // Defines a smart collateral contract where both parties put collateral up. If the contract is unsuccessful
 // then the money gets forwarded to an agreed upon address. If successful, everyone gets their collateral
-// back. The contract also includes a payment option from the borrower to the lender.
+// back. The contract also includes a payment option from the borrower to the lender at the beginning execution
+// of the contract, and also at the end of the contract.
 contract Junto {
     
     // The possible states of a Junto contract.
@@ -43,10 +44,13 @@ contract Junto {
     uint256 public borrowerCollateralValue;
     bool public borrowerCollateralDeposited;
 
-    // Borrower Payment Account
-    uint256 public borrowerPaymentValue;
-    bool public borrowerPaymentDeposited;
-    // TODO: Maybe make separate bool for payment executed
+    // Borrower Initial Payment Account
+    uint256 public borrowerInitialPaymentValue;
+    bool public borrowerInitialPaymentDeposited;
+    
+    // Borrower Final Payment Account
+    uint256 public borrowerFinalPaymentValue;
+    bool public borrowerFinalPaymentDeposited;
 
     // Forwarding address for if the contract is nuked.
     // For the contract to be effective,
@@ -76,14 +80,16 @@ contract Junto {
                              address payable forwardingAddress,
                              uint256 lenderCollateralAmount, 
                              uint256 borrowerCollateralAmount,
-                             uint256 borrowerPaymentAmount) external {
+                             uint256 borrowerInitialPaymentAmount,
+                             uint256 borrowerFinalPaymentAmount) external {
         require(contractState == State.Blank);
         // TODO: These should be commented back in after UI testing:
         //require(lenderAddress != borrowerAddress);
         //require(lenderAddress != forwardingAddress);
         require(lenderCollateralAmount < 1e60);
-        require(borrowerCollateralValue < 1e60);
-        require(borrowerPaymentValue < 1e60);
+        require(borrowerCollateralAmount < 1e60);
+        require(borrowerInitialPaymentAmount < 1e60);
+        require(borrowerFinalPaymentAmount < 1e60);
 
         contractState = State.Prepare;
 
@@ -95,12 +101,14 @@ contract Junto {
         // Set contract values
         lenderCollateralValue = lenderCollateralAmount;
         borrowerCollateralValue = borrowerCollateralAmount; 
-        borrowerPaymentValue = borrowerPaymentAmount;
+        borrowerInitialPaymentValue = borrowerInitialPaymentAmount;
+        borrowerFinalPaymentValue = borrowerFinalPaymentAmount;
 
         // Set deposited to true if the amount is zero
         lenderCollateralDeposited = lenderCollateralAmount == 0;
         borrowerCollateralDeposited = borrowerCollateralAmount == 0;
-        borrowerPaymentDeposited = borrowerPaymentAmount == 0;
+        borrowerInitialPaymentDeposited = borrowerInitialPaymentAmount == 0;
+        borrowerFinalPaymentDeposited = borrowerFinalPaymentAmount == 0;
     }
 
     // Tells us that they are ready to execute the contract.
@@ -119,21 +127,25 @@ contract Junto {
         if (msg.sender == lenderAddr) {
             require(msg.value == lenderCollateralValue, 
                 "Amount added not equal to lender collateral value");
-	    if (lenderCollateralValue > 0) {    
-            	lenderDepositCollateral();
-	    }
+            if (lenderCollateralValue > 0) {    
+                    lenderDepositCollateral();
+            }
             lenderSignedContract = true;
         }
         if (msg.sender == borrowerAddr) {
             require(
-                msg.value == borrowerCollateralValue + borrowerPaymentValue,
+                msg.value == borrowerCollateralValue + 
+                    borrowerInitialPaymentValue + borrowerFinalPaymentValue,
                 "Amount added not equal to borrower collateral and payment value");
-	    if (borrowerCollateralValue > 0) {
-	    	borrowerDepositCollateral();
-	    }
-            if (borrowerPaymentValue > 0) {
-	    	borrowerDepositPayment();
-	    }
+            if (borrowerCollateralValue > 0) {
+                borrowerDepositCollateral();
+            }
+            if (borrowerInitialPaymentValue > 0) {
+                borrowerDepositInitialPayment();
+            }
+            if (borrowerFinalPaymentValue > 0) {
+                borrowerDepositFinalPayment();
+            }
             borrowerSignedContract = true;
         }
 
@@ -150,13 +162,22 @@ contract Junto {
             "Only the lender/borrower can call this function");
         
         if (msg.sender == lenderAddr) {
-            lenderWithdrawCollateral();
+            if (lenderCollateralDeposited && lenderCollateralValue > 0) {
+                lenderWithdrawCollateral();
+            }
             lenderSignedContract = false;
         }
 
         if (msg.sender == borrowerAddr) {
-            borrowerWithdrawCollateral();
-            borrowerWithdrawPayment();
+            if (borrowerCollateralDeposited && borrowerCollateralValue > 0) {
+                borrowerWithdrawCollateral();
+            }
+            if (borrowerInitialPaymentDeposited && borrowerInitialPaymentValue > 0) {
+                borrowerWithdrawInitialPayment();
+            }
+            if (borrowerFinalPaymentDeposited && borrowerFinalPaymentValue > 0) {
+                borrowerWithdrawFinalPayment();
+            }
             borrowerSignedContract = false;
         } 
     }
@@ -232,8 +253,10 @@ contract Junto {
              lenderCollateralValue > 0) || 
             (borrowerCollateralDeposited &&
              borrowerCollateralValue > 0) ||
-            (borrowerPaymentDeposited &&
-             borrowerPaymentValue > 0);
+            (borrowerInitialPaymentDeposited &&
+             borrowerInitialPaymentValue > 0);
+            (borrowerFinalPaymentDeposited &&
+             borrowerFinalPaymentValue > 0);
         require(!valueInContract,
 		    "Not all value withdrawn from contract");
         // Destroy contract.
@@ -263,14 +286,24 @@ contract Junto {
         borrowerCollateralDeposited = true;
     }
 
-    function borrowerDepositPayment() private {
+    function borrowerDepositInitialPayment() private {
         require(contractState == State.Prepare,
                 "Cannot call function in this state");
-	    require(borrowerPaymentValue > 0,
+	    require(borrowerInitialPaymentValue > 0,
 		        "Collateral value is zero");
-        require(!borrowerPaymentDeposited, 
+        require(!borrowerInitialPaymentDeposited, 
                 "Collateral already deposited");
-        borrowerPaymentDeposited = true;
+        borrowerInitialPaymentDeposited = true;
+    }
+    
+    function borrowerDepositFinalPayment() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+        require(borrowerFinalPaymentValue > 0,
+                "Collateral value is zero");
+        require(!borrowerFinalPaymentDeposited, 
+                "Collateral already deposited");
+        borrowerFinalPaymentDeposited = true;
     }
 
     function lenderWithdrawCollateral() private {
@@ -300,17 +333,39 @@ contract Junto {
         borrowerAddr.transfer(borrowerCollateralValue); 
     }
 
-    function borrowerWithdrawPayment() private {
+    function borrowerWithdrawInitialPayment() private {
         require(contractState == State.Prepare,
                 "Cannot call function in this state");
         require(msg.sender == borrowerAddr);
-        require(borrowerPaymentValue > 0,
+        require(borrowerInitialPaymentValue > 0,
                 "Collateral value is zero");
-        require(borrowerPaymentDeposited,
+        require(borrowerInitialPaymentDeposited,
                 "Collateral has not been deposited yet");
 
-        borrowerPaymentDeposited = false;
-        borrowerAddr.transfer(borrowerPaymentValue); 
+        borrowerInitialPaymentDeposited = false;
+        borrowerAddr.transfer(borrowerInitialPaymentValue); 
+    }
+
+    function borrowerWithdrawFinalPayment() private {
+        require(contractState == State.Prepare,
+                "Cannot call function in this state");
+        require(msg.sender == borrowerAddr);
+        require(borrowerFinalPaymentValue > 0,
+                "Collateral value is zero");
+        require(borrowerFinalPaymentDeposited,
+                "Collateral has not been deposited yet");
+
+        borrowerFinalPaymentDeposited = false;
+        borrowerAddr.transfer(borrowerFinalPaymentValue); 
+    }
+
+    function makeFinalPayment() private {
+        require(contractState == State.Resolved);
+        if (borrowerFinalPaymentValue > 0) {
+            require(borrowerFinalPaymentDeposited);
+            borrowerFinalPaymentDeposited = false;
+            lenderAddr.transfer(borrowerFinalPaymentValue);
+        }
     }
 
     // Set contract to be enforced.
@@ -325,8 +380,10 @@ contract Junto {
 		    "Lender has not desposited collateral");
         require(borrowerCollateralDeposited,
 		    "Borrower has not desposited collateral");
-        require(borrowerPaymentDeposited,
-		    "Borrower has not deposited payment");
+        require(borrowerInitialPaymentDeposited,
+		    "Borrower has not deposited Initial payment");
+        require(borrowerFinalPaymentDeposited,
+            "Borrower has not deposited final payment");
         
 	    // Check signatures
         require(lenderSignedContract, 
@@ -336,10 +393,10 @@ contract Junto {
     
         // Contract is now locked, execute payment to lender.
         contractState = State.Locked;
-        if (borrowerPaymentValue > 0) {
-            require(borrowerPaymentDeposited);
-            borrowerPaymentDeposited = false;
-            lenderAddr.transfer(borrowerPaymentValue);
+        if (borrowerInitialPaymentValue > 0) {
+            require(borrowerInitialPaymentDeposited);
+            borrowerInitialPaymentDeposited = false;
+            lenderAddr.transfer(borrowerInitialPaymentValue);
         }
     }
 
@@ -357,5 +414,6 @@ contract Junto {
         contractState = State.Resolved;
         lenderWithdrawCollateral();
         borrowerWithdrawCollateral();
+        makeFinalPayment();
     }
 }

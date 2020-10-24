@@ -379,11 +379,11 @@ Junto.prototype.payBorrowerCollateral = function() {
     );
 };
 
-Junto.prototype.payBorrowerPayment = function() {
+Junto.prototype.payborrowerInitialPayment = function() {
     var that = this;
     // this.showLoader(true);
     //Sets message using the public update function of the smart contract
-    this.instance.payBorrowerPayment(
+    this.instance.payborrowerInitialPayment(
         {
             from: window.web3.eth.accounts[0],
             gas: 100000,
@@ -486,7 +486,7 @@ Junto.prototype.bindButton = function() {
         that.updateDisplay();
     });
     $(document).on("click", "#pay-borrower-payment", function() {
-        that.payBorrowerPayment();
+        that.payborrowerInitialPayment();
         that.updateDisplay();
     });
     $(document).on("click", "#lock-contract", function() {
