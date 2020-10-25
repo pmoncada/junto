@@ -157,7 +157,7 @@ Junto.prototype.resolveContractLender = function() {
     var that = this;
     // this.showLoader(true);
     //Sets message using the public update function of the smart contract
-    this.instance.resolveContract(
+    this.instance.setReadyToResolve(
         {
             from: $('#lender').val(),
             gas: 100000,
@@ -190,7 +190,7 @@ Junto.prototype.resolveContractBorrower = function() {
     var that = this;
     // this.showLoader(true);
     //Sets message using the public update function of the smart contract
-    this.instance.resolveContract(
+    this.instance.setReadyToResolve(
         {
             from: $('#borrower').val(),
             gas: 100000,
