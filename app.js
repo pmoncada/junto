@@ -124,12 +124,13 @@ Junto.prototype.signContractBorrower = function() {
     var that = this;
     // this.showLoader(true);
     //Sets message using the public update function of the smart contract
-    this.instance.signContractBorrower(
+    this.instance.signContract(
         {
-            from: $('#lender').val(),
+            from: $('#borrower').val(),
             gas: 100000,
             gasPrice: 100000,
-            gasLimit: 100000
+            gasLimit: 100000,
+            value: Number($('#borrowerCollateral').val())
         },
         function(error, txHash) {
             if (error) {
@@ -430,35 +431,51 @@ Junto.prototype.updateDisplay = function() {
         }
         if (result == 3){
             $("#contractstate").text("nuked");
-        }
+        }lender
         if (result == 4){
             $("#contractstate").text("resolved");
         }
     });
-  //this.instance.lenderCollateralValue(function(error, result){
-    //if(error){
-    //console.log(result)
-    //console.log(error)
-      //$(".error").show();
-    //}
-    //$("#lenderCollateral").val(result.toNumber())
-  //})
-  //this.instance.borrowerCollateralValue(function(error, result){
-    //console.log(result)
-    //console.log(error)
-    //if(error){
-      //$(".error").show();
-    //}
-    //$("#borrowerCollateral").val(result.toNumber())
-  //})
-  //this.instance.forwardingAddr(function(error, result){
-    //console.log(result)
-    //console.log(error)
-    //if(error){
-      //$(".error").show();
-    //}
-    //$("#forward").val(result)
-  //})
+    this.instance.lenderCollateralValue(function(error, result){
+      if(error){
+      console.log(result)
+      console.log(error)
+        $(".error").show();
+      }
+      $("#lenderCollateral").val(result.toNumber())
+    })
+    this.instance.borrowerCollateralValue(function(error, result){
+      console.log(result)
+      console.log(error)
+      if(error){
+        $(".error").show();
+      }
+      $("#borrowerCollateral").val(result.toNumber())
+    })
+    this.instance.lenderAddr(function(error, result){
+      console.log(result)
+      console.log(error)
+      if(error){
+        $(".error").show();
+      }
+      $("#lender").val(result)
+    })
+    this.instance.borrowerAddr(function(error, result){
+      console.log(result)
+      console.log(error)
+      if(error){
+        $(".error").show();
+      }
+      $("#borrower").val(result)
+    })
+    this.instance.forwardingAddr(function(error, result){
+      console.log(result)
+      console.log(error)
+      if(error){
+        $(".error").show();
+      }
+      $("#forward").val(result)
+    })
 
 };
 
