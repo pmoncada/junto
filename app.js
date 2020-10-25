@@ -60,18 +60,18 @@ Junto.prototype.specifyContract = function() {
             from: $("#lender").val(),
             gas: 100000,
             gasPrice: 100000,
-            gasLimit: 100000
+            gasLimit: 100000,
         },
         function(error, txHash) {
           console.log(txHash)
           console.log(error)
-            if (error) {
-                console.log(error);
-                that.showLoader(false);
-            }
+            //if (error) {
+                //console.log(error);
+                ////that.showLoader(false);
+            //}
             // If success, wait for confirmation of transaction,
             // then clear form value
-            else {
+            //else {
                 //that.waitForReceipt(txHash, function(receipt) {
                     //that.showLoader(false);
                     //if (receipt.status) {
@@ -80,7 +80,7 @@ Junto.prototype.specifyContract = function() {
                         //console.log("error");
                     //}
                 //});
-            }
+            //}
         }
     );
 };
@@ -94,7 +94,8 @@ Junto.prototype.signContractLender = function() {
             from: $('#lender').val(),
             gas: 100000,
             gasPrice: 100000,
-            gasLimit: 100000
+            gasLimit: 100000,
+            value: Number($("#lenderCollateral").val())
         },
         function(error, txHash) {
           console.log(txHash)
@@ -517,9 +518,9 @@ window.junto=junto;
 $(document).ready(function() {
   const queryString = window.location.search;
   var address = "0x6705830a90D68A42a323C81D9f583dCB115F249D";
-  if (queryString){
-    var address = queryString.substr(4);
-  }
+  //if (queryString){
+    //var address = queryString.substr(4);
+  //}
   junto.onReady(address);
   //https://www.coolearth.org/cryptocurrency-donations/
   var coolEarthAddress = "0x3c8cB169281196737c493AfFA8F49a9d823bB9c5"
