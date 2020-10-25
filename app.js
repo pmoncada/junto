@@ -192,7 +192,7 @@ Junto.prototype.resolveContractBorrower = function() {
     //Sets message using the public update function of the smart contract
     this.instance.resolveContractBorrower(
         {
-            from: $('#lender').val(),
+            from: $('#borrower').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000
@@ -354,7 +354,7 @@ Junto.prototype.payBorrowerCollateral = function() {
     //Sets message using the public update function of the smart contract
     this.instance.payBorrowerCollateral(
         {
-            from: $('#lender').val(),
+            from: $('#borrower').val(),
             gas: 100000,
             gasPrice: 100000,
             gasLimit: 100000,
